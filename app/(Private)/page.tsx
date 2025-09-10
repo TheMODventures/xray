@@ -1,23 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Star, CheckCircle, Menu, X } from 'lucide-react';
+import { ArrowRight, Star, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 
 // Image assets - using local public folder and placeholders
 const imgSkeletonIsShownComputerMonitor1 = "/skeleton-is-shown-computer-monitor.svg";
 
 export default function LandingPage() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
   return (
-    <div className="min-h-screen bg-white">
+    <>
       {/* Hero Section */}
       <section className="relative h-screen overflow-hidden bg-[#141414]">
         {/* Background Image */}
@@ -32,78 +24,6 @@ export default function LandingPage() {
         
         {/* Overlay */}
         <div className="absolute inset-0 bg-black/50" />
-        
-        {/* Navigation */}
-        <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 sm:px-8 lg:px-20 pt-[65px]">
-          {/* Logo */}
-          <div className="flex items-center gap-2">
-            <div className="bg-[#155dfc] rounded-[10px] w-8 h-8 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">X</span>
-            </div>
-            <span className="text-white font-bold text-[19.063px]">Xray</span>
-          </div>
-          
-          {/* Desktop Navigation Links */}
-          <div className="hidden lg:flex items-center gap-8 text-white">
-            <a href="#features" className="text-[15.125px] hover:text-blue-300 transition-colors">Features</a>
-            <a href="#how-it-works" className="text-[15.125px] hover:text-blue-300 transition-colors">How It Works</a>
-            <a href="#testimonials" className="text-[15px] hover:text-blue-300 transition-colors">Testimonials</a>
-          </div>
-          
-          {/* Desktop Auth Buttons */}
-          <div className="hidden lg:flex items-center gap-7">
-            <button className="text-white text-[13.563px] hover:text-blue-300 transition-colors">Sign In</button>
-            <Button className="bg-[#155dfc] hover:bg-[#155dfc]/90 text-white text-[13.016px] px-6 py-2 rounded-[8px]">
-              Get Started
-            </Button>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={toggleMobileMenu}
-            className="lg:hidden text-white p-2"
-            aria-label="Toggle mobile menu"
-          >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </nav>
-
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="lg:hidden absolute top-[69px] left-0 right-0 bg-[#141414] border-t border-gray-700 z-20">
-            <div className="px-4 py-6 space-y-4">
-              <a 
-                href="#features" 
-                className="block text-white text-[15.125px] hover:text-blue-300 transition-colors py-2"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Features
-              </a>
-              <a 
-                href="#how-it-works" 
-                className="block text-white text-[15.125px] hover:text-blue-300 transition-colors py-2"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                How It Works
-              </a>
-              <a 
-                href="#testimonials" 
-                className="block text-white text-[15px] hover:text-blue-300 transition-colors py-2"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Testimonials
-              </a>
-              <div className="pt-4 border-t border-gray-700 space-y-3">
-                <button className="block w-full text-left text-white text-[13.563px] hover:text-blue-300 transition-colors py-2">
-                  Sign In
-                </button>
-                <Button className="w-full bg-[#155dfc] hover:bg-[#155dfc]/90 text-white text-[13.016px] px-6 py-2 rounded-[8px]">
-                  Get Started
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
         
         {/* Hero Content */}
         <div className="absolute inset-0 flex flex-col justify-center z-10">
@@ -128,7 +48,6 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
-        
       </section>
 
       {/* Testimonials Section */}
@@ -381,6 +300,6 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
-    </div>
+    </>
   );
 }
