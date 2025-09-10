@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Download, AlertTriangle, FileText, CheckCircle } from 'lucide-react';
+import { handleDownloadReport } from '@/utils/helper';
 
 interface AnalysisResultsViewProps {
   uploadedImage: string;
@@ -13,11 +14,16 @@ interface AnalysisResultsViewProps {
 export default function AnalysisResultsView({ uploadedImage, fileName, onBack }: AnalysisResultsViewProps) {
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const handleDownloadReport = async () => {
-    setIsDownloading(true);
-    // TODO: Implement PDF generation and download
-    console.log('Downloading PDF report...');
-    setTimeout(() => setIsDownloading(false), 2000);
+  const onDownloadReport = async () => {
+    const reportData = {
+      findings,
+      highPriorityCount,
+      averageConfidence,
+      fileName,
+      uploadedImage
+    };
+    
+    await handleDownloadReport(reportData, `${fileName}-analysis-report.pdf`, setIsDownloading);
   };
 
   const findings = [
@@ -70,32 +76,7 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
   const averageConfidence = Math.round(findings.reduce((acc, f) => acc + f.confidence, 0) / findings.length);
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="border-b border-gray-200 h-[69px] flex items-center justify-between px-8">
-        <div className="flex items-center gap-2">
-          <div className="bg-[#155dfc] rounded-[10px] w-8 h-8 flex items-center justify-center">
-            <span className="text-white font-bold text-sm">X</span>
-          </div>
-          <span className="text-[#101828] font-bold text-[19.063px]">Xray</span>
-        </div>
-        
-        <div className="flex items-center gap-8 text-[#4a5565]">
-          <a href="#features" className="text-[15.125px] hover:text-gray-700 transition-colors">Features</a>
-          <a href="#how-it-works" className="text-[15.125px] hover:text-gray-700 transition-colors">How It Works</a>
-          <a href="#testimonials" className="text-[15px] hover:text-gray-700 transition-colors">Testimonials</a>
-        </div>
-        
-        <div className="flex items-center gap-7">
-          <button className="text-[#4a5565] text-[13.563px] hover:text-gray-700 transition-colors">Sign In</button>
-          <Button className="bg-[#155dfc] hover:bg-[#155dfc]/90 text-white text-[13.016px] px-6 py-2 rounded-[8px]">
-            Get Started
-          </Button>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="px-8 py-8">
+    <div className="px-8 py-8">
         {/* Back Button */}
         <div className="mb-6">
           <Button 
@@ -120,7 +101,7 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
           </div>
           
           <Button
-            onClick={handleDownloadReport}
+            onClick={onDownloadReport}
             disabled={isDownloading}
             className="bg-[#1e2939] hover:bg-[#1e2939]/90 text-white text-[13.344px] px-6 py-2 rounded-[8px] flex items-center gap-2"
           >
@@ -244,8 +225,6 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
             </div>
           </div>
         </div>
-
-      </div>
     </div>
   );
 }
