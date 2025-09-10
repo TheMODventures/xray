@@ -96,6 +96,18 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
 
       {/* Main Content */}
       <div className="px-8 py-8">
+        {/* Back Button */}
+        <div className="mb-6">
+          <Button 
+            onClick={onBack}
+            variant="outline" 
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Upload
+          </Button>
+        </div>
+
         {/* Title Section */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -233,17 +245,6 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
           </div>
         </div>
 
-        {/* Back Button */}
-        <div className="mt-8">
-          <Button 
-            onClick={onBack}
-            variant="outline" 
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Upload
-          </Button>
-        </div>
       </div>
     </div>
   );
