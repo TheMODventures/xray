@@ -1,0 +1,33 @@
+<svg width="767" height="803" viewBox="0 0 767 803" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="767" height="803" fill="#F3F4F6"/>
+  
+  <!-- X-ray background -->
+  <rect x="100" y="100" width="567" height="603" fill="#E5E7EB"/>
+  
+  <!-- Simplified X-ray structure -->
+  <!-- Ribs -->
+  <path d="M200 200 L400 200 L400 250 L200 250 Z" fill="#D1D5DB"/>
+  <path d="M250 200 L250 250 L300 250 L300 200 Z" fill="#D1D5DB"/>
+  <path d="M350 200 L350 250 L300 250 L300 200 Z" fill="#D1D5DB"/>
+  
+  <!-- Spine -->
+  <path d="M335 200 L335 600 L335 600 L335 200 Z" fill="#D1D5DB"/>
+  
+  <!-- Lungs -->
+  <ellipse cx="280" cy="400" rx="80" ry="120" fill="#D1D5DB"/>
+  <ellipse cx="450" cy="400" rx="80" ry="120" fill="#D1D5DB"/>
+  
+  <!-- Heart -->
+  <path d="M335 300 A20 20 0 0 1 355 320 A20 20 0 0 1 335 340 A20 20 4 0 1 315 320 A20 20 0 0 1 335 300 Z" fill="#D1D5DB"/>
+  
+  <!-- Highlighted regions for findings -->
+  <!-- Tuberculosis artifact (High priority) -->
+  <rect x="158" y="195" width="203" height="91" fill="rgba(220, 38, 38, 0.13)" stroke="#DC2626" stroke-width="2" rx="5.355"/>
+  
+  <!-- Hilar enlargement (Medium priority) -->
+  <rect x="101" y="337" width="226" height="110" fill="rgba(234, 179, 8, 0.13)" stroke="#EAB308" stroke-width="2" rx="5.355"/>
+  
+  <!-- Consolidation (Medium priority) -->
+  <rect x="12" y="459" width="169" height="73" fill="rgba(234, 179, 8, 0.13)" stroke="#EAB308" stroke-width="2" rx="5.355"/>
+</svg>
