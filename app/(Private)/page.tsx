@@ -90,7 +90,7 @@ export default function LandingPage() {
                         <Star className="w-4 h-4 text-yellow-400 fill-current" />
                       </div>
                       <p className="text-[#101828] text-[14.875px] leading-[24px] mb-2">
-                        "This tool saved us hours of diagnostic review time."
+                        &ldquo;This tool saved us hours of diagnostic review time.&rdquo;
                       </p>
                       <div className="text-[#101828] font-bold text-[15.875px]">Dr. Santos</div>
                       <div className="text-[#4a5565] text-[12.906px]">Pulmonologist • City Medical Center</div>
@@ -113,7 +113,7 @@ export default function LandingPage() {
                         <Star className="w-4 h-4 text-yellow-400 fill-current" />
                       </div>
                       <p className="text-[#101828] text-[14.875px] leading-[24px] mb-2">
-                        "Incredible accuracy for frontline screening."
+                        &ldquo;Incredible accuracy for frontline screening.&rdquo;
                       </p>
                       <div className="text-[#101828] font-bold text-[15.5px]">Health Center Admin</div>
                       <div className="text-[#4a5565] text-[13.016px]">Healthcare Administrator • Regional Health Network</div>
