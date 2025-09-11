@@ -6,7 +6,7 @@ import { ArrowLeft, Download, AlertTriangle, FileText, CheckCircle } from 'lucid
 import { handleDownloadReport } from '@/utils/helper';
 import { useCurrentAnalysis, useUploadedImageUrl } from '@/store/analysis.store';
 import { toast } from 'sonner';
-import { ANALYSIS_RECOMMENDATIONS, PRIORITY_THRESHOLDS, PRIORITY_COLORS } from '@/utils/constants';
+import { ANALYSIS_RECOMMENDATIONS, PRIORITY_THRESHOLDS } from '@/utils/constants';
 
 interface AnalysisResultsViewProps {
   uploadedImage: string;
@@ -198,8 +198,8 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
               <div className="space-y-5">
                 {recommendations.length > 0 ? (
                   recommendations.map((rec, index) => (
-                    <div key={index} className="flex gap-3 items-start">
-                      <rec.icon className={`w-4 h-4 mt-0.5 ${rec.color}`} />
+                    <div key={index} className="flex gap-3 items-center">
+                      <rec.icon className={`w-4 h-4 flex-shrink-0 ${rec.color}`} />
                       <p className={`text-[13.016px] leading-[22.75px] ${rec.color}`}>
                         {rec.text}
                       </p>

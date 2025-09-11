@@ -14,6 +14,7 @@ export default function UploadPage() {
   const { resetAnalysis } = useAnalysisActions();
 
   const handleAnalyze = (file: File) => {
+    console.log('file', file);
     setShowAnalysisResults(true);
   };
 
