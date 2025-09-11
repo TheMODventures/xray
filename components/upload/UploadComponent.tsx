@@ -89,11 +89,6 @@ export default function UploadComponent({ onAnalyze }: UploadComponentProps) {
   };
 
   const handleAnalyze = async () => {
-    if (!selectedFile) {
-      toast.error('Please select a file first');
-      return;
-    }
-
     try {
       // Call the analysis API
       const result = await detectDiseaseMutation.mutateAsync({
