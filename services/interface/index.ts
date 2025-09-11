@@ -15,4 +15,7 @@ export interface ApiResponse<T> {
   export interface PaginatedResponse<T> extends ApiResponse<T[]> {
     pagination: Pagination;
   }
+
+  // Re-export analysis interfaces
+  export * from './analysis/analysis.interface';
   

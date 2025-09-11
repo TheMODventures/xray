@@ -27,18 +27,149 @@ export const getFileType = (file: File): string => {
   return type || 'FILE';
 };
 
+import { ANALYSIS_RECOMMENDATIONS, PRIORITY_COLORS, PDF_CONFIG } from './constants';
+
 // Report generation functions
 export const generatePDFReport = async (data: any): Promise<Blob> => {
-  // TODO: Implement actual PDF generation logic
-  // This is a placeholder that simulates PDF generation
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // Create a simple text blob as placeholder
-      const content = `X-ray Analysis Report\n\nFindings: ${data.findings?.length || 0}\nHigh Priority: ${data.highPriorityCount || 0}\nAverage Confidence: ${data.averageConfidence || 0}%`;
-      const blob = new Blob([content], { type: 'application/pdf' });
-      resolve(blob);
-    }, 2000);
+  const { jsPDF } = await import('jspdf');
+  
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  let yPosition = PDF_CONFIG.PAGE_MARGIN;
+
+  // Helper function to add text with word wrapping
+  const addText = (text: string, x: number, y: number, maxWidth: number, fontSize: number = PDF_CONFIG.BODY_FONT_SIZE) => {
+    doc.setFontSize(fontSize);
+    const lines = doc.splitTextToSize(text, maxWidth);
+    doc.text(lines, x, y);
+    return y + (lines.length * fontSize * 0.4) + PDF_CONFIG.LINE_SPACING;
+  };
+
+  // Helper function to add a new page if needed
+  const checkNewPage = (requiredSpace: number) => {
+    if (yPosition + requiredSpace > pageHeight - PDF_CONFIG.PAGE_MARGIN) {
+      doc.addPage();
+      yPosition = PDF_CONFIG.PAGE_MARGIN;
+    }
+  };
+
+  // Title
+  doc.setFontSize(PDF_CONFIG.TITLE_FONT_SIZE);
+  doc.setFont('helvetica', 'bold');
+  doc.text('X-ray Analysis Report', pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 15;
+
+  // Date and time
+  doc.setFontSize(PDF_CONFIG.BODY_FONT_SIZE);
+  doc.setFont('helvetica', 'normal');
+  const currentDate = new Date().toLocaleString();
+  doc.text(`Generated on: ${currentDate}`, pageWidth / 2, yPosition, { align: 'center' });
+  yPosition += 20;
+
+  // Patient/File Information
+  doc.setFontSize(PDF_CONFIG.HEADING_FONT_SIZE);
+  doc.setFont('helvetica', 'bold');
+  doc.text('File Information', PDF_CONFIG.PAGE_MARGIN, yPosition);
+  yPosition += 10;
+
+  doc.setFontSize(PDF_CONFIG.BODY_FONT_SIZE);
+  doc.setFont('helvetica', 'normal');
+  yPosition = addText(`File Name: ${data.fileName || 'N/A'}`, 20, yPosition, pageWidth - 40);
+  yPosition = addText(`Analysis Date: ${currentDate}`, 20, yPosition, pageWidth - 40);
+  yPosition += 10;
+
+  // Analysis Summary
+  checkNewPage(50);
+  doc.setFontSize(PDF_CONFIG.HEADING_FONT_SIZE);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Analysis Summary', PDF_CONFIG.PAGE_MARGIN, yPosition);
+  yPosition += 10;
+
+  doc.setFontSize(PDF_CONFIG.BODY_FONT_SIZE);
+  doc.setFont('helvetica', 'normal');
+  yPosition = addText(`Total Findings: ${data.totalFindings || 0}`, 20, yPosition, pageWidth - 40);
+  yPosition = addText(`High Priority Findings: ${data.highPriorityCount || 0}`, 20, yPosition, pageWidth - 40);
+  yPosition = addText(`Average Confidence: ${data.averageConfidence || 0}%`, 20, yPosition, pageWidth - 40);
+  
+  // Add model information if available
+  if (data.analysisData?.model_used) {
+    yPosition = addText(`AI Model Used: ${data.analysisData.model_used}`, 20, yPosition, pageWidth - 40);
+  }
+  if (data.analysisData?.threshold) {
+    yPosition = addText(`Detection Threshold: ${data.analysisData.threshold}`, 20, yPosition, pageWidth - 40);
+  }
+  yPosition += 15;
+
+  // Detailed Findings
+  if (data.findings && data.findings.length > 0) {
+    checkNewPage(100);
+    doc.setFontSize(PDF_CONFIG.HEADING_FONT_SIZE);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Detailed Findings', PDF_CONFIG.PAGE_MARGIN, yPosition);
+    yPosition += 10;
+
+    data.findings.forEach((finding: any, index: number) => {
+      checkNewPage(30);
+      
+      // Finding name and priority
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      yPosition = addText(`${index + 1}. ${finding.name}`, 20, yPosition, pageWidth - 40);
+      
+      // Priority badge
+      doc.setFontSize(PDF_CONFIG.BODY_FONT_SIZE);
+      doc.setFont('helvetica', 'normal');
+      const priorityColor = finding.priority === 'High' ? PRIORITY_COLORS.HIGH : 
+                           finding.priority === 'Medium' ? PRIORITY_COLORS.MEDIUM : PRIORITY_COLORS.LOW;
+      doc.setTextColor(priorityColor);
+      yPosition = addText(`Priority: ${finding.priority}`, 20, yPosition, pageWidth - 40);
+      
+      // Confidence score
+      doc.setTextColor(0, 0, 0); // Reset to black
+      yPosition = addText(`Confidence: ${finding.confidence}%`, 20, yPosition, pageWidth - 40);
+      
+      yPosition += 5;
+      
+      // Add separator line
+      doc.setLineWidth(0.5);
+      doc.line(PDF_CONFIG.PAGE_MARGIN, yPosition, pageWidth - PDF_CONFIG.PAGE_MARGIN, yPosition);
+      yPosition += 10;
+    });
+  } else {
+    checkNewPage(20);
+    doc.setFontSize(PDF_CONFIG.BODY_FONT_SIZE);
+    doc.setFont('helvetica', 'normal');
+    yPosition = addText('No findings detected in this analysis.', 20, yPosition, pageWidth - 40);
+  }
+
+  // Recommendations
+  checkNewPage(60);
+  doc.setFontSize(PDF_CONFIG.HEADING_FONT_SIZE);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Recommendations', PDF_CONFIG.PAGE_MARGIN, yPosition);
+  yPosition += 10;
+
+  doc.setFontSize(PDF_CONFIG.BODY_FONT_SIZE);
+  doc.setFont('helvetica', 'normal');
+  ANALYSIS_RECOMMENDATIONS.forEach((rec, index) => {
+    checkNewPage(15);
+    yPosition = addText(`• ${rec}`, 20, yPosition, pageWidth - 40);
   });
+
+  // Footer
+  const totalPages = doc.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    doc.setFontSize(PDF_CONFIG.FOOTER_FONT_SIZE);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Page ${i} of ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+    doc.text('Generated by ChestAI Analysis System', pageWidth / 2, pageHeight - 5, { align: 'center' });
+  }
+
+  // Convert to blob
+  const pdfBlob = doc.output('blob');
+  return pdfBlob;
 };
 
 export const downloadFile = (blob: Blob, filename: string) => {
@@ -63,7 +194,7 @@ export const handleDownloadReport = async (
     downloadFile(blob, filename);
   } catch (error) {
     console.error('Error generating report:', error);
-    // TODO: Add proper error handling/notification
+    throw new Error('Failed to generate PDF report. Please try again.');
   } finally {
     setIsDownloading?.(false);
   }

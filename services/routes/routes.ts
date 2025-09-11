@@ -13,6 +13,11 @@ class Routes {
       profile: (userId: string) => `/users/${userId}`,
       updateProfile: (userId: string) => `/users/${userId}`,
     };
+
+    static Analysis = {
+      detectDisease: (threshold?: number) => 
+        threshold !== undefined ? `/detect-disease?threshold=${threshold}` : '/detect-disease',
+    };
   
     private static withQueryParams(
         path: string,

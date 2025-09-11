@@ -4,11 +4,14 @@ import { useState, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Button } from '@/components/ui/button';
-import { Upload, FileImage, CheckCircle, ArrowLeft, X } from 'lucide-react';
+import { Upload, FileImage, CheckCircle, ArrowLeft, X, Loader2 } from 'lucide-react';
 import { useUpload } from '@/hooks/useUpload';
 import Link from 'next/link';
 import { uploadValidationSchema, UploadFormData } from '@/lib/validation/upload.validation';
 import { formatFileSize, getFileType } from '@/utils/helper';
+import { AnalysisMutation } from '@/services/mutation/analysis.mutation';
+import { useAnalysisActions } from '@/store/analysis.store';
+import { toast } from 'sonner';
 
 interface UploadComponentProps {
   onAnalyze: (file: File) => void;
@@ -19,6 +22,12 @@ export default function UploadComponent({ onAnalyze }: UploadComponentProps) {
   const [isReadyForAnalysis, setIsReadyForAnalysis] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isUploading, progress, error, success, uploadFile, resetUpload } = useUpload();
+  
+  // Analysis state and actions
+  const { setAnalysisData, setUploadedFile, setUploadedImageUrl } = useAnalysisActions();
+  
+  // Analysis mutation
+  const detectDiseaseMutation = AnalysisMutation.useDetectDisease();
 
   const {
     register,
@@ -38,11 +47,15 @@ export default function UploadComponent({ onAnalyze }: UploadComponentProps) {
     setValue('file', file, { shouldValidate: true });
     uploadFile(file);
     
+    // Store file and create image URL for preview
+    setUploadedFile(file);
+    setUploadedImageUrl(URL.createObjectURL(file));
+    
     // Simulate processing time and then show ready state
     setTimeout(() => {
       setIsReadyForAnalysis(true);
     }, 2000);
-  }, [setValue, uploadFile]);
+  }, [setValue, uploadFile, setUploadedFile, setUploadedImageUrl]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -75,9 +88,32 @@ export default function UploadComponent({ onAnalyze }: UploadComponentProps) {
     fileInputRef.current?.click();
   };
 
-  const handleAnalyze = () => {
-    if (selectedFile) {
+  const handleAnalyze = async () => {
+    if (!selectedFile) {
+      toast.error('Please select a file first');
+      return;
+    }
+
+    try {
+      // Call the analysis API
+      const result = await detectDiseaseMutation.mutateAsync({
+        file: selectedFile,
+        threshold: 0.6, // Default threshold
+      });
+      
+      // Store the analysis results
+      setAnalysisData(result);
+      
+      // Show success message
+      toast.success('Analysis completed successfully!');
+      
+      // Navigate to results view
       onAnalyze(selectedFile);
+      
+    } catch (error) {
+      console.error('Analysis failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Analysis failed. Please try again.';
+      toast.error(errorMessage);
     }
   };
 
@@ -86,6 +122,10 @@ export default function UploadComponent({ onAnalyze }: UploadComponentProps) {
     resetUpload();
     setIsReadyForAnalysis(false);
     reset();
+    
+    // Clear analysis data
+    setUploadedFile(null);
+    setUploadedImageUrl(null);
     
     // Clear the file input
     if (fileInputRef.current) {
@@ -156,9 +196,17 @@ export default function UploadComponent({ onAnalyze }: UploadComponentProps) {
             {/* Analyze Button */}
             <Button
               onClick={handleAnalyze}
-              className="w-full bg-[#155dfc] hover:bg-[#155dfc]/90 text-white text-[13.125px] py-3 rounded-[8px]"
+              disabled={detectDiseaseMutation.isPending}
+              className="w-full bg-[#155dfc] hover:bg-[#155dfc]/90 text-white text-[13.125px] py-3 rounded-[8px] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Analyze X-ray
+              {detectDiseaseMutation.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Analyzing X-ray...
+                </>
+              ) : (
+                'Analyze X-ray'
+              )}
             </Button>
           </div>
         ) : (
@@ -330,6 +378,15 @@ export default function UploadComponent({ onAnalyze }: UploadComponentProps) {
         {errors.file && (
           <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
             <p className="text-red-600 text-sm">{errors.file.message}</p>
+          </div>
+        )}
+        
+        {/* Analysis Error Display */}
+        {detectDiseaseMutation.isError && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-red-600 text-sm">
+              {detectDiseaseMutation.error?.message || 'Analysis failed. Please try again.'}
+            </p>
           </div>
         )}
       </form>
