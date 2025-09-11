@@ -180,7 +180,7 @@ export default function UploadComponent({ onAnalyze }: UploadComponentProps) {
                 {/* Remove File Button */}
                 <button 
                   onClick={handleRemoveFile}
-                  className="p-1 hover:bg-red-100 rounded transition-colors"
+                  className="p-1 hover:bg-red-100 rounded transition-colors cursor-pointer"
                   title="Remove file"
                 >
                   <X className="w-4 h-4 text-red-500 hover:text-red-700" />
@@ -222,7 +222,7 @@ export default function UploadComponent({ onAnalyze }: UploadComponentProps) {
               className={`
                 relative bg-gray-50 h-[292px] rounded-[14px] border-2 border-dashed transition-colors
                 ${isDragOver ? 'border-[#155dfc] bg-blue-50' : 'border-[#d1d5dc]'}
-                ${isUploading ? 'pointer-events-none' : 'cursor-pointer'}
+                ${isUploading ? 'pointer-events-none cursor-not-allowed' : 'cursor-pointer'}
               `}
               onDrop={handleDrop}
               onDragOver={handleDragOver}

@@ -91,11 +91,6 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
             </h1>
             <p className="text-black text-[15.562px] leading-[21.418px]">
               AI analysis completed • {totalFindings} findings detected
-              {currentAnalysis && (
-                <span className="block text-sm text-gray-600 mt-1">
-                  Model: {currentAnalysis.model_used} • Threshold: {currentAnalysis.threshold}
-                </span>
-              )}
             </p>
           </div>
           
