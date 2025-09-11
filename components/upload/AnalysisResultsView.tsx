@@ -4,6 +4,9 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Download, AlertTriangle, FileText, CheckCircle } from 'lucide-react';
 import { handleDownloadReport } from '@/utils/helper';
+import { useCurrentAnalysis, useUploadedImageUrl } from '@/store/analysis.store';
+import { toast } from 'sonner';
+import { ANALYSIS_RECOMMENDATIONS, PRIORITY_THRESHOLDS } from '@/utils/constants';
 
 interface AnalysisResultsViewProps {
   uploadedImage: string;
@@ -13,67 +16,58 @@ interface AnalysisResultsViewProps {
 
 export default function AnalysisResultsView({ uploadedImage, fileName, onBack }: AnalysisResultsViewProps) {
   const [isDownloading, setIsDownloading] = useState(false);
+  
+  // Get data from store
+  const currentAnalysis = useCurrentAnalysis();
+  const storeImageUrl = useUploadedImageUrl();
+  
+  // Use store image URL if available, otherwise fallback to prop
+  const displayImage = storeImageUrl || uploadedImage;
 
-  const onDownloadReport = async () => {
-    const reportData = {
-      findings,
-      highPriorityCount,
-      averageConfidence,
-      fileName,
-      uploadedImage
-    };
-    
-    await handleDownloadReport(reportData, `${fileName}-analysis-report.pdf`, setIsDownloading);
-  };
-
-  const findings = [
-    {
-      id: 1,
-      name: 'Tuberculosis artifact',
-      location: 'Upper right lobe',
-      priority: 'High',
-      confidence: 98,
-      priorityColor: 'bg-red-100 border-red-200 text-red-800'
-    },
-    {
-      id: 2,
-      name: 'Hilar enlargement',
-      location: 'Bilateral hilar regions',
-      priority: 'Medium',
-      confidence: 89,
-      priorityColor: 'bg-yellow-100 border-yellow-200 text-yellow-800'
-    },
-    {
-      id: 3,
-      name: 'Consolidation',
-      location: 'Left lower lobe',
-      priority: 'Medium',
-      confidence: 94,
-      priorityColor: 'bg-yellow-100 border-yellow-200 text-yellow-800'
-    }
-  ];
-
-  const recommendations = [
-    {
-      icon: AlertTriangle,
-      text: 'Immediate clinical correlation recommended for high priority findings',
-      color: 'text-red-600'
-    },
-    {
-      icon: FileText,
-      text: 'Consider additional imaging or laboratory tests as clinically indicated',
-      color: 'text-blue-600'
-    },
-    {
-      icon: CheckCircle,
-      text: 'Follow-up imaging recommended to monitor progression',
-      color: 'text-green-600'
-    }
-  ];
+  // Convert API data to simple findings format
+  const findings = currentAnalysis ? Object.entries(currentAnalysis.detected_diseases).map(([name, confidence]) => ({
+    id: name,
+    name: name.replace(/_/g, ' '),
+    confidence: Math.round(confidence * 100),
+    priority: confidence >= PRIORITY_THRESHOLDS.HIGH ? 'High' : 
+              confidence >= PRIORITY_THRESHOLDS.MEDIUM ? 'Medium' : 'Low',
+    priorityColor: confidence >= PRIORITY_THRESHOLDS.HIGH ? 'bg-red-100 border-red-200 text-red-800' : 
+                   confidence >= PRIORITY_THRESHOLDS.MEDIUM ? 'bg-yellow-100 border-yellow-200 text-yellow-800' : 
+                   'bg-green-100 border-green-200 text-green-800'
+  })).sort((a, b) => b.confidence - a.confidence) : [];
 
   const totalFindings = findings.length;
   const highPriorityCount = findings.filter(f => f.priority === 'High').length;
-  const averageConfidence = Math.round(findings.reduce((acc, f) => acc + f.confidence, 0) / findings.length);
+  const averageConfidence = findings.length > 0 
+    ? Math.round(findings.reduce((acc, f) => acc + f.confidence, 0) / findings.length)
+    : 0;
+
+  const onDownloadReport = async () => {
+    try {
+      const reportData = {
+        findings,
+        totalFindings,
+        highPriorityCount,
+        averageConfidence,
+        fileName,
+        uploadedImage: displayImage,
+        analysisData: currentAnalysis
+      };
+      
+      await handleDownloadReport(reportData, `${fileName}-analysis-report.pdf`, setIsDownloading);
+      toast.success('Report downloaded successfully!');
+    } catch (error) {
+      console.error('Error downloading report:', error);
+      toast.error('Failed to download report. Please try again.');
+    }
+  };
+
+  // Simple recommendations
+  const recommendations = ANALYSIS_RECOMMENDATIONS.map((text, index) => ({
+    icon: index === 0 ? AlertTriangle : index === 1 ? FileText : CheckCircle,
+    text,
+    color: index === 0 ? 'text-red-600' : index === 1 ? 'text-blue-600' : 'text-green-600'
+  }));
 
   return (
     <div className="px-8 py-8">
@@ -116,29 +110,10 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
           <div className="flex-1 relative">
             <div className="relative rounded-[44px] overflow-hidden bg-gray-100">
               <img
-                src={uploadedImage}
+                src={displayImage}
                 alt="X-ray Analysis"
                 className="w-full h-[600px] object-cover"
               />
-              
-              {/* Highlighted Regions with Confidence Scores */}
-              <div className="absolute top-[195px] left-[158px] bg-red-100 border-2 border-red-600 rounded-[5.355px] p-2 w-[203px] h-[91px]">
-                <div className="bg-red-600 text-white text-[15.562px] px-2 py-1 rounded-[5.355px] w-fit">
-                  98%
-                </div>
-              </div>
-              
-              <div className="absolute top-[337px] left-[101px] bg-yellow-100 border-2 border-yellow-500 rounded-[5.355px] p-2 w-[226px] h-[110px]">
-                <div className="bg-yellow-500 text-white text-[15.562px] px-2 py-1 rounded-[5.355px] w-fit">
-                  89%
-                </div>
-              </div>
-              
-              <div className="absolute top-[459px] left-[12px] bg-yellow-100 border-2 border-yellow-500 rounded-[5.355px] p-2 w-[169px] h-[73px]">
-                <div className="bg-yellow-500 text-white text-[15.562px] px-2 py-1 rounded-[5.355px] w-fit">
-                  94%
-                </div>
-              </div>
             </div>
           </div>
 
@@ -179,28 +154,31 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
               </h3>
               
               <div className="space-y-4">
-                {findings.map((finding) => (
-                  <div key={finding.id} className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[#101828] text-[14px] leading-[24px]">
-                        {finding.name}
-                      </span>
-                      <span className={`px-2 py-1 rounded-[8px] text-[11.25px] leading-[16px] border ${finding.priorityColor}`}>
-                        {finding.priority}
-                      </span>
+                {findings.length > 0 ? (
+                  findings.map((finding, index) => (
+                    <div key={finding.id} className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[#101828] text-[14px] leading-[24px]">
+                          {finding.name}
+                        </span>
+                        <span className={`px-2 py-1 rounded-[8px] text-[11.25px] leading-[16px] border ${finding.priorityColor}`}>
+                          {finding.priority}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[#4a5565] text-[14px]">Confidence:</span>
+                        <span className="text-[#101828] text-[14px] font-medium">{finding.confidence}%</span>
+                      </div>
+                      {index < findings.length - 1 && (
+                        <div className="border-t border-gray-200 mt-4"></div>
+                      )}
                     </div>
-                    <p className="text-[#6a7282] text-[14px] leading-[20px]">
-                      {finding.location}
-                    </p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-[#4a5565] text-[14px]">Confidence:</span>
-                      <span className="text-[#101828] text-[14px] font-medium">{finding.confidence}%</span>
-                    </div>
-                    {finding.id < findings.length && (
-                      <div className="border-t border-gray-200 mt-4"></div>
-                    )}
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500 text-sm">No findings detected</p>
                   </div>
-                ))}
+                )}
               </div>
             </div>
 
@@ -213,14 +191,20 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
               </h3>
               
               <div className="space-y-5">
-                {recommendations.map((rec, index) => (
-                  <div key={index} className="flex gap-3 items-start">
-                    <rec.icon className={`w-4 h-4 mt-0.5 ${rec.color}`} />
-                    <p className={`text-[13.016px] leading-[22.75px] ${rec.color}`}>
-                      {rec.text}
-                    </p>
+                {recommendations.length > 0 ? (
+                  recommendations.map((rec, index) => (
+                    <div key={index} className="flex gap-3 items-center">
+                      <rec.icon className={`w-4 h-4 flex-shrink-0 ${rec.color}`} />
+                      <p className={`text-[13.016px] leading-[22.75px] ${rec.color}`}>
+                        {rec.text}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-gray-500 text-sm">No specific recommendations at this time</p>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>

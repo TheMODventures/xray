@@ -39,7 +39,7 @@ export default function LandingPage() {
                 learning with medical-grade accuracy.
               </p>
               
-              <Link href="/upload">
+              <Link href="/upload" className="inline-block">
                 <Button className="bg-[#155dfc] hover:bg-[#155dfc]/90 text-white text-[13.125px] px-6 py-3 rounded-[8px] flex items-center gap-2 mx-auto">
                   <ArrowRight className="w-4 h-4" />
                   Upload Your X-ray
@@ -270,10 +270,10 @@ export default function LandingPage() {
             <div className="space-y-4">
               <h3 className="text-white font-bold text-[15.625px]">Product</h3>
               <div className="space-y-3">
-                <a href="#features" className="block text-[#99a1af] text-[15.125px] hover:text-white transition-colors">Features</a>
-                <a href="#pricing" className="block text-[#99a1af] text-[15.125px] hover:text-white transition-colors">Pricing</a>
-                <a href="#api" className="block text-[#99a1af] text-[16px] hover:text-white transition-colors">API</a>
-                <a href="#docs" className="block text-[#99a1af] text-[14.875px] hover:text-white transition-colors">Documentation</a>
+                <a href="#features" className="block text-[#99a1af] text-[15.125px] hover:text-white transition-colors cursor-pointer">Features</a>
+                <a href="#pricing" className="block text-[#99a1af] text-[15.125px] hover:text-white transition-colors cursor-pointer">Pricing</a>
+                <a href="#api" className="block text-[#99a1af] text-[16px] hover:text-white transition-colors cursor-pointer">API</a>
+                <a href="#docs" className="block text-[#99a1af] text-[14.875px] hover:text-white transition-colors cursor-pointer">Documentation</a>
               </div>
             </div>
             
@@ -281,10 +281,10 @@ export default function LandingPage() {
             <div className="space-y-4">
               <h3 className="text-white font-bold text-[15.5px]">Company</h3>
               <div className="space-y-3">
-                <a href="#about" className="block text-[#99a1af] text-[14.75px] hover:text-white transition-colors">About</a>
-                <a href="#privacy" className="block text-[#99a1af] text-[15px] hover:text-white transition-colors">Privacy</a>
-                <a href="#terms" className="block text-[#99a1af] text-[15.125px] hover:text-white transition-colors">Terms</a>
-                <a href="#contact" className="block text-[#99a1af] text-[14.625px] hover:text-white transition-colors">Contact</a>
+                <a href="#about" className="block text-[#99a1af] text-[14.75px] hover:text-white transition-colors cursor-pointer">About</a>
+                <a href="#privacy" className="block text-[#99a1af] text-[15px] hover:text-white transition-colors cursor-pointer">Privacy</a>
+                <a href="#terms" className="block text-[#99a1af] text-[15.125px] hover:text-white transition-colors cursor-pointer">Terms</a>
+                <a href="#contact" className="block text-[#99a1af] text-[14.625px] hover:text-white transition-colors cursor-pointer">Contact</a>
               </div>
             </div>
             
