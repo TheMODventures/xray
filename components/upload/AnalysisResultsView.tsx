@@ -80,10 +80,10 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
         {/* Title Section */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-[#101828] font-bold text-[21px] leading-[28px] mb-1">
+            <h1 className="text-[#101828] font-bold text-[24px] leading-[32px] mb-1">
               {analysisType === 'xray' ? 'X-ray' : 'MRI'} Analysis Results
             </h1>
-            <p className="text-black text-[15.562px] leading-[21.418px]">
+            <p className="text-black text-[15.562px] leading-[21.418px] font-semibold">
               AI analysis completed • {totalFindings} findings detected
             </p>
           </div>
@@ -91,7 +91,7 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
           <Button
             onClick={onDownloadReport}
             disabled={isDownloading}
-            className="bg-[#1e2939] hover:bg-[#1e2939]/90 text-white text-[13.344px] px-6 py-2 rounded-[8px] flex items-center gap-2"
+            className="bg-[#1e2939] hover:bg-[#1e2939]/90 text-white text-[13.344px] leading-[20px] px-6 py-2 rounded-[8px] flex items-center gap-2"
           >
             <Download className="w-4 h-4" />
             {isDownloading ? 'Generating...' : 'Download Report (PDF)'}
@@ -140,7 +140,7 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
           <div className="w-[416px] bg-white border border-gray-200 rounded-[10px] p-6 shadow-sm">
             {/* Analysis Summary Header */}
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[#101828] text-[16px] leading-[24px] font-medium">
+              <h2 className="text-[#101828] text-[18px] leading-[26px] font-semibold">
                 AI Analysis Summary
               </h2>
               <span className="text-[#6a7282] text-[14px] leading-[20px]">
@@ -151,16 +151,16 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
             {/* Summary Stats */}
             <div className="space-y-4 mb-6">
               <div className="flex justify-between items-center">
-                <span className="text-[#4a5565] text-[14px]">Total Findings:</span>
-                <span className="text-[#101828] text-[14px] font-medium">{totalFindings}</span>
+                <span className="text-[#4a5565] text-[14px] leading-[24px]">Total Findings:</span>
+                <span className="text-[#101828] text-[14px] leading-[24px] font-normal">{totalFindings}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-[#4a5565] text-[14px]">High Priority:</span>
-                <span className="text-red-600 text-[14px] font-medium">{highPriorityCount}</span>
+                <span className="text-[#4a5565] text-[14px] leading-[24px]">High Priority:</span>
+                <span className="text-red-600 text-[14px] leading-[24px] font-normal">{highPriorityCount}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-[#4a5565] text-[14px]">Average Confidence:</span>
-                <span className="text-[#101828] text-[14px] font-medium">{averageConfidence}%</span>
+                <span className="text-[#4a5565] text-[14px] leading-[24px]">Average Confidence:</span>
+                <span className="text-[#101828] text-[14px] leading-[24px] font-normal">{averageConfidence}%</span>
               </div>
             </div>
 
@@ -168,7 +168,7 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
 
             {/* Detected Findings */}
             <div className="mb-6">
-              <h3 className="text-[#101828] text-[14px] leading-[24px] font-medium mb-4">
+              <h3 className="text-[#101828] text-[14px] leading-[24px] font-normal mb-4">
                 Detected Findings
               </h3>
               
@@ -177,7 +177,7 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
                   findings.map((finding, index) => (
                     <div key={finding.id} className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-[#101828] text-[14px] leading-[24px]">
+                        <span className="text-[#101828] text-[14px] leading-[24px] font-normal">
                           {finding.name}
                         </span>
                         <span className={`px-2 py-1 rounded-[8px] text-[11.25px] leading-[16px] border ${finding.priorityColor}`}>
@@ -185,8 +185,8 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-[#4a5565] text-[14px]">Confidence:</span>
-                        <span className="text-[#101828] text-[14px] font-medium">{finding.confidence}%</span>
+                        <span className="text-[#4a5565] text-[14px] leading-[20px]">Confidence:</span>
+                        <span className="text-[#101828] text-[14px] leading-[20px] font-normal">{finding.confidence}%</span>
                       </div>
                       {/* MRI-specific: Show coordinates if available */}
                       {/* {finding.coordinates && (
@@ -212,7 +212,7 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
 
             {/* Recommendations */}
             <div>
-              <h3 className="text-[#101828] text-[15.125px] leading-[24px] font-medium mb-4">
+              <h3 className="text-[#101828] text-[15.125px] leading-[24px] font-normal mb-4">
                 Recommendations
               </h3>
               
@@ -221,7 +221,7 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
                   recommendations.map((rec, index) => (
                     <div key={index} className="flex gap-3 items-center">
                       <rec.icon className={`w-4 h-4 flex-shrink-0 ${rec.color}`} />
-                      <p className={`text-[13.016px] leading-[22.75px] ${rec.color}`}>
+                      <p className={`text-[13.016px] leading-[22.75px] font-normal ${rec.color}`}>
                         {rec.text}
                       </p>
                     </div>
