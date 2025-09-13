@@ -9,3 +9,17 @@ export interface User {
     accessToken: string;
     refreshToken?: string;
 }
+
+export interface Finding {
+    id: string;
+    name: string;
+    confidence: number;
+    priority: string;
+    priorityColor: string;
+    coordinates?: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    };
+}

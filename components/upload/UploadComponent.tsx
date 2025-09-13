@@ -4,13 +4,14 @@ import { useState, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Upload, FileImage, CheckCircle, ArrowLeft, X, Loader2 } from 'lucide-react';
 import { useUpload } from '@/hooks/useUpload';
 import Link from 'next/link';
 import { uploadValidationSchema, UploadFormData } from '@/lib/validation/upload.validation';
 import { formatFileSize, getFileType } from '@/utils/helper';
 import { AnalysisMutation } from '@/services/mutation/analysis.mutation';
-import { useAnalysisActions } from '@/store/analysis.store';
+import { useAnalysisActions, useAnalysisType } from '@/store/analysis.store';
 import { toast } from 'sonner';
 
 interface UploadComponentProps {
@@ -24,10 +25,12 @@ export default function UploadComponent({ onAnalyze }: UploadComponentProps) {
   const { isUploading, progress, error, success, uploadFile, resetUpload } = useUpload();
   
   // Analysis state and actions
-  const { setAnalysisData, setUploadedFile, setUploadedImageUrl } = useAnalysisActions();
+  const { setAnalysisData, setAnalysisType, setUploadedFile, setUploadedImageUrl } = useAnalysisActions();
+  const analysisType = useAnalysisType();
   
-  // Analysis mutation
+  // Analysis mutations
   const detectDiseaseMutation = AnalysisMutation.useDetectDisease();
+  const detectMRIMutation = AnalysisMutation.useDetectMRI();
 
   const {
     register,
@@ -89,18 +92,28 @@ export default function UploadComponent({ onAnalyze }: UploadComponentProps) {
   };
 
   const handleAnalyze = async () => {
+    if (!analysisType || !selectedFile) return;
+    
     try {
-      // Call the analysis API
-      const result = await detectDiseaseMutation.mutateAsync({
-        file: selectedFile,
-        threshold: 0.6, // Default threshold
-      });
+      let result;
+      
+      // Call the appropriate analysis API based on selected type
+      if (analysisType === 'xray') {
+        result = await detectDiseaseMutation.mutateAsync({
+          file: selectedFile,
+          threshold: 0.6, // Default threshold
+        });
+      } else {
+        result = await detectMRIMutation.mutateAsync({
+          file: selectedFile,
+        });
+      }
       
       // Store the analysis results
-      setAnalysisData(result);
+      setAnalysisData(result, analysisType);
       
       // Show success message
-      toast.success('Analysis completed successfully!');
+      toast.success(`${analysisType === 'xray' ? 'X-ray' : 'MRI'} analysis completed successfully!`);
       
       // Navigate to results view
       onAnalyze(selectedFile);
@@ -121,11 +134,16 @@ export default function UploadComponent({ onAnalyze }: UploadComponentProps) {
     // Clear analysis data
     setUploadedFile(null);
     setUploadedImageUrl(null);
+    setAnalysisType(null);
     
     // Clear the file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+  };
+
+  const handleAnalysisTypeSelect = (type: 'xray' | 'mri') => {
+    setAnalysisType(type);
   };
 
   const onSubmit = (data: UploadFormData) => {
@@ -143,10 +161,10 @@ export default function UploadComponent({ onAnalyze }: UploadComponentProps) {
             {/* Title and Description */}
             <div className="text-center mb-8">
               <h1 className="text-[#101828] font-normal text-[18.906px] leading-[28px] mb-3">
-                X-ray Ready for Analysis
+                Image Ready for Analysis
               </h1>
               <p className="text-[#4a5565] text-[13.016px] leading-[20px]">
-                Review your file details below and click analyze to begin processing.
+                Review your file details below and select analysis type to begin processing.
               </p>
             </div>
 
@@ -188,19 +206,35 @@ export default function UploadComponent({ onAnalyze }: UploadComponentProps) {
               </div>
             </div>
 
+            {/* Analysis Type Select */}
+            <div className="mb-6">
+              <label className="block text-[#101828] text-[14px] font-medium mb-2">
+                Select Analysis Type
+              </label>
+              <Select value={analysisType || ''} onValueChange={handleAnalysisTypeSelect}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Choose analysis type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="xray">Analyze X-ray</SelectItem>
+                  <SelectItem value="mri">Analyze MRI</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Analyze Button */}
             <Button
               onClick={handleAnalyze}
-              disabled={detectDiseaseMutation.isPending}
+              disabled={!analysisType || detectDiseaseMutation.isPending || detectMRIMutation.isPending}
               className="w-full bg-[#155dfc] hover:bg-[#155dfc]/90 text-white text-[13.125px] py-3 rounded-[8px] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {detectDiseaseMutation.isPending ? (
+              {(detectDiseaseMutation.isPending || detectMRIMutation.isPending) ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Analyzing X-ray...
+                  Analyzing {analysisType === 'xray' ? 'X-ray' : 'MRI'}...
                 </>
               ) : (
-                'Analyze X-ray'
+                'Analyze'
               )}
             </Button>
           </div>
@@ -377,10 +411,10 @@ export default function UploadComponent({ onAnalyze }: UploadComponentProps) {
         )}
         
         {/* Analysis Error Display */}
-        {detectDiseaseMutation.isError && (
+        {(detectDiseaseMutation.isError || detectMRIMutation.isError) && (
           <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
             <p className="text-red-600 text-sm">
-              {detectDiseaseMutation.error?.message || 'Analysis failed. Please try again.'}
+              {(detectDiseaseMutation.error || detectMRIMutation.error)?.message || 'Analysis failed. Please try again.'}
             </p>
           </div>
         )}

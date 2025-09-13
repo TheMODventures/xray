@@ -17,6 +17,7 @@ class Routes {
     static Analysis = {
       detectDisease: (threshold?: number) => 
         threshold !== undefined ? `/detect-disease?threshold=${threshold}` : '/detect-disease',
+      detectMRI: '/detect-mri',
     };
   
     private static withQueryParams(

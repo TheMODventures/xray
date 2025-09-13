@@ -4,9 +4,12 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Download, AlertTriangle, FileText, CheckCircle } from 'lucide-react';
 import { handleDownloadReport } from '@/utils/helper';
-import { useCurrentAnalysis, useUploadedImageUrl } from '@/store/analysis.store';
+import { useCurrentAnalysis, useUploadedImageUrl, useAnalysisType } from '@/store/analysis.store';
 import { toast } from 'sonner';
 import { ANALYSIS_RECOMMENDATIONS, PRIORITY_THRESHOLDS } from '@/utils/constants';
+import { AnalysisResponse, MRIAnalysisResponse } from '@/services/interface/analysis/analysis.interface';
+import { Finding } from '@/interfaces/interface';
+import { convertAnalysisToFindings } from '@/utils/helper';
 
 interface AnalysisResultsViewProps {
   uploadedImage: string;
@@ -19,22 +22,14 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
   
   // Get data from store
   const currentAnalysis = useCurrentAnalysis();
+  const analysisType = useAnalysisType();
   const storeImageUrl = useUploadedImageUrl();
   
   // Use store image URL if available, otherwise fallback to prop
   const displayImage = storeImageUrl || uploadedImage;
 
-  // Convert API data to simple findings format
-  const findings = currentAnalysis ? Object.entries(currentAnalysis.detected_diseases).map(([name, confidence]) => ({
-    id: name,
-    name: name.replace(/_/g, ' '),
-    confidence: Math.round(confidence * 100),
-    priority: confidence >= PRIORITY_THRESHOLDS.HIGH ? 'High' : 
-              confidence >= PRIORITY_THRESHOLDS.MEDIUM ? 'Medium' : 'Low',
-    priorityColor: confidence >= PRIORITY_THRESHOLDS.HIGH ? 'bg-red-100 border-red-200 text-red-800' : 
-                   confidence >= PRIORITY_THRESHOLDS.MEDIUM ? 'bg-yellow-100 border-yellow-200 text-yellow-800' : 
-                   'bg-green-100 border-green-200 text-green-800'
-  })).sort((a, b) => b.confidence - a.confidence) : [];
+  // Convert API data to simple findings format using helper function
+  const findings: Finding[] = convertAnalysisToFindings(currentAnalysis);
 
   const totalFindings = findings.length;
   const highPriorityCount = findings.filter(f => f.priority === 'High').length;
@@ -87,7 +82,7 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-[#101828] font-bold text-[21px] leading-[28px] mb-1">
-              X-ray Analysis Results
+              {analysisType === 'xray' ? 'X-ray' : 'MRI'} Analysis Results
             </h1>
             <p className="text-black text-[15.562px] leading-[21.418px]">
               AI analysis completed • {totalFindings} findings detected
@@ -106,14 +101,39 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
 
         {/* Analysis Content */}
         <div className="flex gap-8">
-          {/* Left Side - X-ray Image */}
+          {/* Left Side - Image */}
           <div className="flex-1 relative">
             <div className="relative rounded-[44px] overflow-hidden bg-gray-100">
               <img
                 src={displayImage}
-                alt="X-ray Analysis"
+                alt={`${analysisType === 'xray' ? 'X-ray' : 'MRI'} Analysis`}
                 className="w-full h-[600px] object-cover"
               />
+              {/* MRI-specific: Show bounding boxes if available */}
+              {/* {analysisType === 'mri' && findings.length > 0 && (
+                <div className="absolute inset-0">
+                  {findings.map((finding, index) => {
+                    if (!finding.coordinates) return null;
+                    const { x, y, width, height } = finding.coordinates;
+                    return (
+                      <div
+                        key={finding.id}
+                        className="absolute border-2 border-red-500 bg-red-500/20"
+                        style={{
+                          left: `${(x / (currentAnalysis as MRIAnalysisResponse)?.image.width) * 100}%`,
+                          top: `${(y / (currentAnalysis as MRIAnalysisResponse)?.image.height) * 100}%`,
+                          width: `${(width / (currentAnalysis as MRIAnalysisResponse)?.image.width) * 100}%`,
+                          height: `${(height / (currentAnalysis as MRIAnalysisResponse)?.image.height) * 100}%`,
+                        }}
+                      >
+                        <div className="absolute -top-6 left-0 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                          {finding.name} ({finding.confidence}%)
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )} */}
             </div>
           </div>
 
@@ -169,6 +189,13 @@ export default function AnalysisResultsView({ uploadedImage, fileName, onBack }:
                         <span className="text-[#4a5565] text-[14px]">Confidence:</span>
                         <span className="text-[#101828] text-[14px] font-medium">{finding.confidence}%</span>
                       </div>
+                      {/* MRI-specific: Show coordinates if available */}
+                      {/* {finding.coordinates && (
+                        <div className="text-[#6a7282] text-[12px] mt-1">
+                          Position: ({finding.coordinates.x}, {finding.coordinates.y}) • 
+                          Size: {finding.coordinates.width}×{finding.coordinates.height}
+                        </div>
+                      )} */}
                       {index < findings.length - 1 && (
                         <div className="border-t border-gray-200 mt-4"></div>
                       )}
