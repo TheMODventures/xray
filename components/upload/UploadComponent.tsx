@@ -184,7 +184,7 @@ export default function UploadComponent({ onAnalyze }: UploadComponentProps) {
                 
                 {/* File Info */}
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-[#101828] text-[15.625px] leading-[24px] font-medium truncate">
+                  <h3 className="text-[#101828] text-[15.625px] leading-[24px] font-normal truncate">
                     {selectedFile?.name || 'Xray_share.jpg'}
                   </h3>
                   <p className="text-[#6a7282] text-[13.344px] leading-[20px]">
@@ -226,7 +226,7 @@ export default function UploadComponent({ onAnalyze }: UploadComponentProps) {
             <Button
               onClick={handleAnalyze}
               disabled={!analysisType || detectDiseaseMutation.isPending || detectMRIMutation.isPending}
-              className="w-full bg-[#155dfc] hover:bg-[#155dfc]/90 text-white text-[13.125px] py-3 rounded-[8px] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-[#155dfc] hover:bg-[#155dfc]/90 text-white text-[13.125px] leading-[20px] py-3 rounded-[8px] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {(detectDiseaseMutation.isPending || detectMRIMutation.isPending) ? (
                 <>
@@ -316,7 +316,7 @@ export default function UploadComponent({ onAnalyze }: UploadComponentProps) {
                     </>
                   ) : (
                     <>
-                      <p className="text-[#101828] text-[16.875px] leading-[28px] font-medium">
+                      <p className="text-[#101828] text-[16.875px] leading-[28px] font-normal">
                         Drop your X-ray here
                       </p>
                       <p className="text-[#6a7282] text-[14.625px] leading-[24px]">
@@ -334,7 +334,7 @@ export default function UploadComponent({ onAnalyze }: UploadComponentProps) {
                       handleChooseFile();
                     }}
                     variant="outline"
-                    className="bg-white border border-gray-300 text-[#101828] hover:bg-gray-50 text-[13.453px] px-6 py-2 rounded-[8px]"
+                    className="bg-white border border-gray-300 text-[#101828] hover:bg-gray-50 text-[13.453px] leading-[20px] px-6 py-2 rounded-[8px]"
                   >
                     Choose File
                   </Button>
@@ -380,26 +380,7 @@ export default function UploadComponent({ onAnalyze }: UploadComponentProps) {
             </p>
 
             {/* Action Buttons */}
-            <div className="flex justify-between items-center mt-8">
-              <Link href="/">
-                <Button
-                  variant="outline"
-                  className="text-[#4a5565] border-gray-300 hover:bg-gray-50 flex items-center gap-2"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  Back to Home
-                </Button>
-              </Link>
 
-              {success && (
-                <Button
-                  onClick={() => setIsReadyForAnalysis(true)}
-                  className="bg-[#155dfc] hover:bg-[#155dfc]/90 text-white"
-                >
-                  Continue to Analysis
-                </Button>
-              )}
-            </div>
           </>
         )}
         
