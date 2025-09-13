@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { analysisService } from '../api/analysis.api';
-import { AnalysisPayload, AnalysisResponse } from '../interface/analysis/analysis.interface';
+import { AnalysisPayload, AnalysisResponse, MRIAnalysisResponse } from '../interface/analysis/analysis.interface';
 
 function useDetectDisease() {
   return useMutation<AnalysisResponse, Error, AnalysisPayload>({
@@ -17,8 +17,24 @@ function useDetectDisease() {
   });
 }
 
+function useDetectMRI() {
+  return useMutation<MRIAnalysisResponse, Error, AnalysisPayload>({
+    mutationFn: async (payload: AnalysisPayload) => {
+      const response = await analysisService.detectMRI(payload);
+      return response;
+    },
+    onSuccess: (result: MRIAnalysisResponse) => {
+      console.log('MRI analysis completed:', result);
+    },
+    onError: (error: Error) => {
+      console.error('MRI analysis failed:', error);
+    },
+  });
+}
+
 class AnalysisMutation {
   static useDetectDisease = useDetectDisease;
+  static useDetectMRI = useDetectMRI;
 }
 
 export { AnalysisMutation };
