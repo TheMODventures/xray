@@ -6,8 +6,7 @@ import { ArrowLeft, Download, AlertTriangle, FileText, CheckCircle } from 'lucid
 import { handleDownloadReport } from '@/utils/helper';
 import { useCurrentAnalysis, useUploadedImageUrl, useAnalysisType } from '@/store/analysis.store';
 import { toast } from 'sonner';
-import { ANALYSIS_RECOMMENDATIONS, PRIORITY_THRESHOLDS } from '@/utils/constants';
-import { AnalysisResponse, MRIAnalysisResponse } from '@/services/interface/analysis/analysis.interface';
+import { ANALYSIS_RECOMMENDATIONS } from '@/utils/constants';
 import { Finding } from '@/interfaces/interface';
 import { convertAnalysisToFindings } from '@/utils/helper';
 
